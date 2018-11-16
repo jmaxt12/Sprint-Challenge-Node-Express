@@ -27,7 +27,6 @@ const errorHelper = (status, message, res) => {
 
 
 
-
 //**********Project Middleware**********
 
 
@@ -36,10 +35,10 @@ const errorHelper = (status, message, res) => {
 const nameCheck = (req, res, next) => {
     const { name } = req.body;
     if (!name) {
-      errorHelper(404, 'Name must be included', res);
-      next();
+        errorHelper(404, 'Name must be included', res);
+        next();
     } else {
-      next();
+        next();
     }
 };
 
@@ -51,56 +50,66 @@ const nameLengthCheck = (req, res, next) => {
     } else {
         next();
     }
-  };
+};
 
-  const descriptionCheck= (req, res, next) => {
+const descriptionCheck= (req, res, next) => {
     const { description } = req.body;
     if (!description) {
-      errorHelper(404, 'Description must be included', res);
-      next();
+        errorHelper(404, 'Description must be included', res);
+        next();
     } else {
-      next();
+        next();
     }
   };
-
-
-
-
-
+  
+  
+  
+  
+  
   //**********Action Middleware**********
-
-
-
-
+  
+  
+  
+  
   const actionIdCheck= (req, res, next) => {
-    const { project_id } = req.body;
+      const { project_id } = req.body;
     if (!project_id) {
-      errorHelper(404, 'Project ID must be included', res);
-      next();
+        errorHelper(404, 'Project ID must be included', res);
+        next();
     } else {
-      next();
-    }
-  };
-
-  const descriptionLengthCheck= (req, res, next) => {
-    const { description } = req.body;
-    if (description.length > 128) {
-      errorHelper(404, 'Description must be less than 129 characters', res);
-      next();
-    } else {
-      next();
-    }
-  };
-
-  const notesCheck = (req, res, next) => {
-    const { notes } = req.body;
-    if (!notes) {
-      errorHelper(404, 'Notes must be included', res);
-      next();
-    } else {
-      next();
+        next();
     }
 };
+
+const descriptionLengthCheck= (req, res, next) => {
+    const { description } = req.body;
+    if (description.length > 128) {
+        errorHelper(404, 'Description must be less than 129 characters', res);
+        next();
+    } else {
+        next();
+    }
+};
+
+const notesCheck = (req, res, next) => {
+    const { notes } = req.body;
+    if (!notes) {
+        errorHelper(404, 'Notes must be included', res);
+        next();
+    } else {
+        next();
+    }
+};
+
+const actionIdNumberCheck = (req, res, next) => {
+    const action_id = req.body;
+    if (action_id === "") {
+        errorHelper(404, 'Action_id must be a number', res);
+        next();
+    } else {
+        next();
+    }
+}
 
 
 
@@ -129,11 +138,11 @@ server.get('/action/:id', (req, res) => {
 
 //Post it
 
-server.post ('/action', actionIdCheck, notesCheck, descriptionLengthCheck,  (req, res) => {
-    const {project_Id, description, notes} = req.body
-    action.insert({project_Id, description, notes})
-          .then (post => {
-            res.status(200).json(post)
+server.post ('/action', actionIdCheck, notesCheck, descriptionLengthCheck, (req, res) => {
+    const {description, notes, project_id} = req.body;
+    action.insert({description, notes, project_id})
+          .then (insert => {
+            res.status(200).json(insert)
           })
           .catch(err => {
               res.status(500).json({error: "Can't post it!"})
@@ -142,7 +151,7 @@ server.post ('/action', actionIdCheck, notesCheck, descriptionLengthCheck,  (req
 
 //Update post
 
-server.put('/action/:id', (req, res) => {
+server.put('/action/:id', actionIdCheck, notesCheck, descriptionLengthCheck, actionIdNumberCheck, (req, res) => {
     const id = req.params.id;
     const post = req.body;
     action.update(id, post)
@@ -211,10 +220,10 @@ server.post ('/project', nameCheck, nameLengthCheck, descriptionCheck, (req, res
 
 //Update post
 
-server.put('/project/:id', (req, res) => {
+server.put('/project/:id', nameCheck, nameLengthCheck, descriptionCheck, (req, res) => {
     const id = req.params.id;
-    const project = req.body;
-    project.update(id, post)
+    const changes = req.body;
+    project.update(id, changes)
           .then (update => {
             res.json(update)
           })
